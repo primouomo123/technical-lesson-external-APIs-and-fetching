@@ -1,36 +1,27 @@
-# Technical Lesson: Handling Events with JavaScript
+# Technical Lesson: External API and Fetching
 
 ## Introduction
 
-In this lesson, we’ll walk through the steps of building interactive functionality in a web application by handling events dynamically with JavaScript. This involves attaching event listeners, responding to user actions, and updating the DOM in real-time.
+In this lesson, we’ll walk through the steps of fetching data from an external API and 
+dynamically updating the web page with the results. This involves making asynchronous 
+requests, handling responses, and ensuring the data is properly processed and 
+displayed.
 
-A software company wants to enhance user experience by allowing elements on a webpage to respond dynamically to user interactions. The goal is to build a system where users can move an object (like a customizable avatar) left and right on a webpage using keyboard inputs, simulating a typical problem encountered in developing interactive user interfaces.
+A software company wants to enhance user experience by displaying live data from 
+external sources (e.g., weather updates, stock prices, or astronaut information). The 
+goal is to build a system where the web page fetches and displays data without 
+requiring a full page reload, simulating a typical problem encountered in modern web 
+applications.
 
-## Challenge
+## Tools & Resources
 
-1. **Define the Problem:**
-   - Identify the interactivity requirements for moving a rectangle (the "dodger") left and right on a webpage using keyboard inputs.
+You will need the following tools and resources to complete this technical lesson:
 
-2. **Access Elements:**
-   - Select the DOM elements that need to be manipulated.
+* Javascript Environment: [Node.js](https://nodejs.org/en)
+* Text Editor: [VS Code](https://code.visualstudio.com/)
+* GitHub Repo: [Technical Lesson- External API and Fetching](https://github.com/learn-co-curriculum/technical-lesson-external-APIs-and-fetching)
 
-3. **Attach Event Listeners:**
-   - Add event listeners to detect user actions and respond accordingly.
-
-4. **Handle Events:**
-   - Implement functions to move the dodger left and right based on key presses.
-
-5. **Test and Debug:**
-   - Verify the functionality and ensure the dodger remains within the game field boundaries.
-
-6. **Document the Code:**
-   - Maintain proper documentation and version control for the project.
-
-## Bonus Challenge
-
-7. **Implement Additional Features and Improvements**
-
-## Instructions
+## Set Up
 
 1. **Fork and Clone the Repository:**
    - Go to the provided GitHub repository link.
@@ -39,91 +30,119 @@ A software company wants to enhance user experience by allowing elements on a we
    - Open the project in VSCode.
    - Run `npm install` to install all necessary dependencies.
 
-2. **Define the Problem:**
-   - Identify interactivity requirements. Our goal is to move a rectangle (the "dodger") left and right across a game field when the user presses the arrow keys.
-   - **User Action:** Pressing the left arrow key moves the dodger left. Pressing the right arrow key moves it right.
-   - **Constraints:** The dodger must remain within the boundaries of the game field.
+## Instructions
 
-3. **Design and Develop the Code:**
+1. **Define the Problem:**
 
-   - **Step 1: Access Elements**
-     - Select the element we want to manipulate in the DOM.
+Allow a web page to fetch data from an external API and update its content dynamically.
+   - **User Action:** Display a list of astronauts currently in space by fetching data 
+   from an API.
+   - **Constraints:** Ensure the request is made asynchronously, handle potential 
+   errors, and display the data in a user-friendly format.
+
+2. **Design and Develop the Code:**
+
+   - **Step 1: Identify Data Requirements**
+     - We need to fetch data about astronauts currently in space from a public API. 
+     The API endpoint http://api.open-notify.org/astros.json provides this data in 
+     JSON format.
+
+   - **Step 2: Write the `fetch()` Request**
+     - We use the `fetch()` function to send an HTTP request to the API and process 
+     the response.
        ```javascript
-       const dodger = document.getElementById("dodger");
+       fetch("http://api.open-notify.org/astros.json")
+         .then(function (response) {
+            return response.json();
+         })
+         .then(function (data) {
+            console.log(data);
+         });
        ```
+       - **Explanation:**
+         - `fetch()` sends a request to the specified URL.
+         - The first `.then()` method processes the response by converting it to JSON.
+         - The second `.then()` method logs the returned data to the console.
 
-   - **Step 2: Attach Event Listeners**
-     - Detect user interactions (keypresses) and respond accordingly.
+   - **Step 3: Display the Data Dynamically**
+     - We want to display the names of the astronauts on the web page. We will create 
+     a function to manipulate the DOM and display this data.
        ```javascript
-       document.addEventListener("keydown", function (event) {
-         console.log(event.key); // Logs the key pressed
-       });
-       ```
+         function displayAstronauts(data) {
+            const astronautList = document.getElementById("astronaut-list");
 
-   - **Step 3: Handle Events - Move Left**
-     - Move the dodger left when the left arrow key is pressed.
-       ```javascript
-       function moveDodgerLeft() {
-         const leftNumbers = dodger.style.left.replace("px", "");
-         const left = parseInt(leftNumbers, 10);
-
-         if (left > 0) { // Prevent moving off-screen
-           dodger.style.left = `${left - 10}px`;
+            data.people.forEach((person) => {
+               const listItem = document.createElement("li");
+               listItem.textContent = person.name;
+               astronautList.appendChild(listItem);
+            });
          }
-       }
+
+         fetch("http://api.open-notify.org/astros.json")
+            .then(function (response) {
+               return response.json();
+            })
+            .then(function (data) {
+               displayAstronauts(data);
+            })
+            .catch(function (error) {
+               console.error("Error fetching data:", error);
+            });
        ```
+       - **Explanation:**
+         - `displayAstronauts(data)` dynamically creates a list item for each 
+         astronaut and appends it to an unordered list (`<ul>`).
+         - `fetch()` retrieves the data and calls `displayAstronauts` to update the DOM
+         - The `.catch()` method handles any errors that occur during the fetch process.
 
-   - **Step 4: Handle Events - Move Right**
-     - Move the dodger right when the right arrow key is pressed.
-       ```javascript
-       function moveDodgerRight() {
-         const leftNumbers = dodger.style.left.replace("px", "");
-         const left = parseInt(leftNumbers, 10);
-
-         if (left < 360) { // Prevent moving off-screen
-           dodger.style.left = `${left + 10}px`;
-         }
-       }
-       ```
-
-   - **Step 5: Combine Event Handling**
-     - Call the moveDodgerLeft or moveDodgerRight functions based on key presses.
-       ```javascript
-       document.addEventListener("keydown", function (event) {
-         if (event.key === "ArrowLeft") {
-           moveDodgerLeft();
-         } else if (event.key === "ArrowRight") {
-           moveDodgerRight();
-         }
-       });
-       ```
-
-4. **Test and Refine:**
+3. **Test and Refine:**
    - Open `index.html` in the browser.
-   - Use the arrow keys to move the dodger left and right.
-   - Confirm the dodger stops at the edges of the game field.
-   - Debug using `console.log()` to verify event listener functionality.
+   - The list of astronauts should appear on the page.
+   - Open DevTools to check for any errors or logs.
+   - **Debugging Tips:**
+      - *Check the Console:* Verify that the response data is logged correctly.
+      - *Network Errors:* Ensure you have an active internet connection and the API is 
+      accessible.
+      - *CORS Issues:* Some APIs may restrict access based on cross-origin policies.
 
-5. **Document and Maintain:**
+4. **Document and Maintain:**
    - Use version control to track changes and updates.
-   - Schedule regular reviews to ensure content remains relevant and accurate.
-   - Maintain a repository with all lab documents and example code.
+      - Commit Changes: Use Git to track changes.
+      ```bash
+      git add .
+      git commit -m "Fetch and display astronauts from API"
+      ```
+      - Push to GitHub: Share your code for collaboration.
+      ```bash
+      git push origin main
+      ```
+   -  Regular Updates and Reviews
+      - Schedule periodic code reviews to ensure your implementation remains up-to-date with JavaScript best practices. Update API endpoints if they change
+   - Potential Code Enhancements
+      - *Experiment with Other APIs:* try fetching weather data, news headlines, or stock prices.
+      - *Add Loading Indicators:* Display a loading message while data is being fetched.
+      - *Error Messages:* Show user-friendly error messages if the fetch fails.
+   - Repository Documentation
+      - Maintain a repository of example code and detailed documentation for future reference.
 
-## Bonus Challenge: Implement Additional Features and Improvements
 
-1. **Handling Edge Cases:**
-   - Ensure the dodger does not move outside the game field boundaries.
+## Common Issues
 
-2. **Add New Features:**
-   - Allow the dodger to move vertically.
-   - Enable users to toggle the movement speed.
+- **Network Reliability:** The API may be down or slow. Always include error handling with .catch().
 
-3. **Experiment with Other Event Types:**
-   - Implement mouse clicks or drag-and-drop functionality.
+- **CORS Restrictions:** Some APIs may block requests due to cross-origin policies. Consider using a proxy server if necessary.
 
-## Resources
+- **Data Format:** Ensure you understand the structure of the JSON response to avoid parsing errors.
 
-- [document.createElement()](https://developer.mozilla.org/en-US/docs/Web/API/Document/createElement)
-- [append()](https://developer.mozilla.org/en-US/docs/Web/API/Element/append)
-- [removeChild()](https://developer.mozilla.org/en-US/docs/Web/API/Node/removeChild)
-- [element.remove()](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/remove)
+## Edge Cases
+
+- **Empty Data:** Handle cases where the API returns no astronauts.
+
+- **Rapid Requests:** Avoid sending too many requests in a short time.
+
+## Summary
+
+This lesson introduced the concept of fetching data from external APIs using 
+JavaScript. You learned how to make asynchronous requests, process JSON responses, and 
+update the DOM dynamically. Mastering these skills is essential for creating modern, 
+data-driven web applications.
